@@ -78,7 +78,7 @@ importers:
       zod:
         specifier: ^4.1.0
         version: 4.5.4
-  app/modules/calendar:
+  app/modules/calendar:
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.0.0
