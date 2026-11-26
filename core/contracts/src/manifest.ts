@@ -33,8 +33,13 @@ export type ModulePermission = (typeof MODULE_PERMISSIONS)[number];
 /** 词表 schema：词表外的值直接 parse 失败（未知能力拒绝）。 */
 export const ModulePermissionSchema = z.enum(MODULE_PERMISSIONS);
 
-/** 运行时类型：worker（workerd）、docker 容器、external（自托管外部服务）。 */
-export const ModuleRuntimeSchema = z.enum(['worker', 'docker', 'external']);
+/**
+ * 运行体（#369）：模块能跑在哪个进程上——`worker` = workerd，`node` = Node 进程。
+ * 只回答「跑在哪」，不回答「怎么接入」：接入由有没有对外地址决定（直连 / 反连），
+ * 两种运行体都能走任一接入。原 `docker` 是分发形式不是运行体（docker 里跑的也是 node），
+ * 原 `external` 是入站能力不是运行时，两者都不是这根轴上的值，已删。
+ */
+export const ModuleRuntimeSchema = z.enum(['worker', 'node']);
 
 const STORAGE_LEVEL_VALUES = ['core', 'self'] as const;
 
@@ -106,7 +111,7 @@ const TableNameSchema = z.string().regex(/^[a-z][a-z0-9_]*$/);
  */
 export const ModuleManifestSchema = z
   .object({
-    /** 模块 id：作者建议的实例内名字（决策 #59，全局身份=包名/来源），小写字母开头。 */
+    /** 模块 id：默认命名来源，不是实例身份（实例 id 由 core 定，见 docs/modules.md 第 8 节）；小写字母开头。 */
     id: z.string().regex(/^[a-z][a-z0-9-]+$/),
     /** semver 版本号（x.y.z）；实例侧确切版本另记在 unself.lock。 */
     version: z.string().regex(/^\d+\.\d+\.\d+$/),
